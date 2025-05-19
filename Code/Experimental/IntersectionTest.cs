@@ -11,7 +11,7 @@ class IntersectionTest : Component {
 			return;
 		}
 
-		bool collides = first.IntersectsWith(second);
+		bool collides = Intersections.Test(first, second);
 
 		this.GetComponent<ModelRenderer>().Tint = collides ? Color.Green : Color.Red;
 	}

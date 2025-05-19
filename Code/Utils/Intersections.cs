@@ -1,9 +1,35 @@
 using System;
-using System.Diagnostics;
 
+/// <summary>
+/// Allows for intersection testing between this class and other colliders
+/// </summary>
 public interface IIntersectable {
-	public static Stopwatch IntersectionTimer = Stopwatch.StartNew();
+	/// <summary>
+	/// Returns the furthest point on this body in the given direction
+	/// </summary>
+	/// <param name="direction"> World space normalized direction vector </param>
+	/// <returns> World space position of the point on this body that's the furthest in the given direction </returns>
+	Vector3 GetFurthestPoint(Vector3 direction);
 
+	/// <summary>
+	/// World position of the body, optional (simply returning 0 does the job)
+	/// </summary>
+	/// <remarks>
+	/// While optional, returning a point in the middle of the body might speed up calculations
+	/// </remarks>
+	Vector3 WorldPosition { get; }
+}
+
+/// <summary>
+/// Class for managing intersections between objects
+/// </summary>
+/// <remarks>
+/// This class uses the 3D GJK algorithm to test for intersections
+/// </remarks>
+public static class Intersections {
+	/// <summary>
+	/// A 3D simplex, used by GJK
+	/// </summary>
 	public struct Tetrahedron {
 		public Vector3[] points = new Vector3[4];
 
@@ -36,22 +62,19 @@ public interface IIntersectable {
 			if (d6 >= epsilon && d5 <= d6) return c; //#3
 
 			float vc = d1 * d4 - d3 * d2;
-			if (vc <= epsilon && d1 >= epsilon && d3 <= epsilon)
-			{
+			if (vc <= epsilon && d1 >= epsilon && d3 <= epsilon) {
 				float vv = d1 / (d1 - d3);
 				return a + vv * ab; //#4
 			}
-				
+
 			float vb = d5 * d2 - d1 * d6;
-			if (vb <= epsilon && d2 >= epsilon && d6 <= epsilon)
-			{
+			if (vb <= epsilon && d2 >= epsilon && d6 <= epsilon) {
 				float vv = d2 / (d2 - d6);
 				return a + vv * ac; //#5
 			}
-				
+
 			float va = d3 * d6 - d5 * d4;
-			if (va <= epsilon && (d4 - d3) >= epsilon && (d5 - d6) >= epsilon)
-			{
+			if (va <= epsilon && (d4 - d3) >= epsilon && (d5 - d6) >= epsilon) {
 				float vv = (d4 - d3) / ((d4 - d3) + (d5 - d6));
 				return b + vv * (c - b); //#6
 			}
@@ -89,7 +112,7 @@ public interface IIntersectable {
 				Vector3.Cross(points[3] - points[0], points[1] - points[0]),
 				Vector3.Cross(points[2] - points[0], points[1] - points[0])
 			];
-			
+
 			for (int i = 0; i < 4; i++) {
 				if (Vector3.Dot(normals[i], points[i]) > 0) {
 					normals[i] = -normals[i];
@@ -137,21 +160,111 @@ public interface IIntersectable {
 		}
 	};
 
-	Vector3 GetFurthestPoint(Vector3 direction);
+	/// <summary>
+	/// Test if the collider type supports intersection testing. Some types might not be implemented
+	/// </summary>
+	/// <typeparam name="T">
+	/// Type of the collider
+	/// </typeparam>
+	/// <returns>
+	/// True if the collider supports intersections, false otherwise
+	/// </returns>
+	/// <remarks>
+	/// To support intersections the class must fulfill one of two requirements: <para />
+	/// - For builtin colliders: A FurthestPoint extension method must be defined <para />
+	/// - For custom colliders: The collider must implement the <see cref="IIntersectable"/> interface
+	/// </remarks>
+	public static bool Supported<T>() where T : Collider, new() {
+		try {
+			T c = new T();
 
-	Vector3 WorldPosition { get; }
+			c.FurthestPoint(Vector3.Forward);
 
-	static bool Intersection(IIntersectable first, IIntersectable second) {
-		DebugOverlaySystem debug = null;
-		if (second is IntersectableCylinder) {
-			debug = (second as IntersectableCylinder).DebugOverlay;
+			return true;
+		} catch (NotImplementedException) {
+			return false;
+		} catch {
+			return true;
 		}
+	}
 
-		const bool STRICT_DEBUG = false;
+	/// <summary>
+	/// Test for intersection between 2 colliders
+	/// </summary>
+	/// <param name="first"> First of the colliders, must not be null and satisfy <see cref="Intersections.Supported{T}"/>> </param>
+	/// <param name="second"> Second of the colliders, must not be null and satisfy <see cref="Intersections.Supported{T}"/>> </param>
+	/// <returns> True if the colliders intersect, false otherwise </returns>
+	/// <exception cref="ArgumentNullException"> Thrown if any of the 2 colliders is null </exception>
+	/// <remarks>
+	/// In the event that the method fails to conclude if an intersection occurs, it will assume false and print an error message to the console. <para />
+	/// The order of the operands doesn't matter, that is <c> Test(first, second) == Test(second, first) </c>
+	/// </remarks>
+	public static bool Test(Collider first, Collider second) {
+		ArgumentNullException.ThrowIfNull(first, nameof(first));
+		ArgumentNullException.ThrowIfNull(second, nameof(second));
+
+		return TestInternal(new IntersectableCollider(first), new IntersectableCollider(second));
+	}
+
+	/// <summary>
+	/// Test for intersection between an <see cref="IIntersectable"/> object and a collider
+	/// </summary>
+	/// <param name="first"> <see cref="IIntersectable"/> object, must not be null </param>
+	/// <param name="second"> The collider, must not be null and satisfy <see cref="Intersections.Supported{T}"/>> </param>
+	/// <returns> True if the intersection occurs, false otherwise </returns>
+	/// <exception cref="ArgumentNullException"> Thrown if any of the 2 arguments is null </exception>
+	/// <remarks>
+	/// In the event that the method fails to conclude if an intersection occurs, it will assume false and print an error message to the console. <para />
+	/// The order of the operands doesn't matter, that is <c> Test(first, second) == Test(second, first) </c>
+	/// </remarks>
+	public static bool Test(IIntersectable first, Collider second) {
+		ArgumentNullException.ThrowIfNull(first, nameof(first));
+		ArgumentNullException.ThrowIfNull(second, nameof(second));
+
+		return TestInternal(first, new IntersectableCollider(second));
+	}
+
+	/// <summary>
+	/// Test for intersection between a collider and an <see cref="IIntersectable"/> object
+	/// </summary>
+	/// <param name="first"> The collider, must not be null and satisfy <see cref="Intersections.Supported{T}"/>> </param>
+	/// <param name="second"> <see cref="IIntersectable"/> object, must not be null </param>
+	/// <returns> True if the intersection occurs, false otherwise </returns>
+	/// <exception cref="ArgumentNullException"> Thrown if any of the 2 arguments is null </exception>
+	/// <remarks>
+	/// In the event that the method fails to conclude if an intersection occurs, it will assume false and print an error message to the console. <para />
+	/// The order of the operands doesn't matter, that is <c> Test(first, second) == Test(second, first) </c>
+	/// </remarks>
+	public static bool Test(Collider first, IIntersectable second) {
+		ArgumentNullException.ThrowIfNull(first, nameof(first));
+		ArgumentNullException.ThrowIfNull(second, nameof(second));
+
+		return TestInternal(new IntersectableCollider(first), second);
+	}
+
+	/// <summary>
+	/// Test for intersection between two <see cref="IIntersectable"/> objects
+	/// </summary>
+	/// <param name="first"> The first <see cref="IIntersectable"/> object, must not be null </param>
+	/// <param name="second"> The second <see cref="IIntersectable"/> object, must not be null </param>
+	/// <returns> True if the intersection occurs, false otherwise </returns>
+	/// <exception cref="ArgumentNullException"> Thrown if any of the 2 arguments is null </exception>
+	/// <remarks>
+	/// In the event that the method fails to conclude if an intersection occurs, it will assume false and print an error message to the console. <para />
+	/// The order of the operands doesn't matter, that is <c> Test(first, second) == Test(second, first) </c>
+	/// </remarks>
+	public static bool Test(IIntersectable first, IIntersectable second) {
+		ArgumentNullException.ThrowIfNull(first, nameof(first));
+		ArgumentNullException.ThrowIfNull(second, nameof(second));
+
+		return TestInternal(first, second);
+	}
+
+	private static bool TestInternal(IIntersectable first, IIntersectable second) {
 		const float epsilon = 0.0001f;
 
 		Vector3 direction = second.WorldPosition - first.WorldPosition;
-		
+
 		// First support point, towards some arbitrary direction
 		Vector3 A = first.GetFurthestPoint(direction) - second.GetFurthestPoint(-direction);
 
@@ -201,54 +314,6 @@ public interface IIntersectable {
 		for (int i = 0; i < limit; i++) {
 			direction = simplex.GetNormalOfSideClosestToOrigin(out index);
 
-			if (STRICT_DEBUG && i == limit - 1) {
-				debug?.Line(Vector3.Zero, direction * 10, Color.Magenta, overlay: true);
-
-				debug?.Text(A, "A" + i, overlay: true);
-
-				// debug?.Line(A, B, Color.Cyan, overlay: true);
-				// debug?.Line(A, C, Color.Cyan, overlay: true);
-				// debug?.Line(A, D, Color.Cyan, overlay: true);
-				// debug?.Line(B, C, Color.Cyan, overlay: true);
-				// debug?.Line(B, D, Color.Cyan, overlay: true);
-				// debug?.Line(C, D, Color.Cyan, overlay: true);
-
-				switch (index) {
-					case 0:
-						debug?.Line(B, C, Color.Red, overlay: true);
-						debug?.Line(B, D, Color.Red, overlay: true);
-						debug?.Line(C, D, Color.Red, overlay: true);
-						debug?.Line(A, B, Color.Cyan, overlay: true);
-						debug?.Line(A, C, Color.Cyan, overlay: true);
-						debug?.Line(A, D, Color.Cyan, overlay: true);
-						break;
-					case 1:
-						debug?.Line(A, C, Color.Red, overlay: true);
-						debug?.Line(A, D, Color.Red, overlay: true);
-						debug?.Line(C, D, Color.Red, overlay: true);
-						debug?.Line(A, B, Color.Cyan, overlay: true);
-						debug?.Line(B, C, Color.Cyan, overlay: true);
-						debug?.Line(B, D, Color.Cyan, overlay: true);
-						break;
-					case 2:
-						debug?.Line(A, B, Color.Red, overlay: true);
-						debug?.Line(A, D, Color.Red, overlay: true);
-						debug?.Line(B, D, Color.Red, overlay: true);
-						debug?.Line(A, C, Color.Cyan, overlay: true);
-						debug?.Line(B, C, Color.Cyan, overlay: true);
-						debug?.Line(C, D, Color.Cyan, overlay: true);
-						break;
-					case 3:
-						debug?.Line(A, B, Color.Red, overlay: true);
-						debug?.Line(A, C, Color.Red, overlay: true);
-						debug?.Line(B, C, Color.Red, overlay: true);
-						debug?.Line(A, D, Color.Cyan, overlay: true);
-						debug?.Line(B, D, Color.Cyan, overlay: true);
-						debug?.Line(C, D, Color.Cyan, overlay: true);
-						break;
-				}
-			}
-
 			A = first.GetFurthestPoint(direction) - second.GetFurthestPoint(-direction);
 
 			if (Vector3.Dot(direction, A) <= epsilon || simplex.ContainsVertex(A)) {
@@ -268,55 +333,108 @@ public interface IIntersectable {
 	}
 }
 
+/// <summary>
+/// Container class for colliders that allows for intersection tests
+/// </summary>
 public class IntersectableCollider : IIntersectable {
+	/// <summary>
+	/// <see cref="Sandbox.Collider"/> wrapped in this object, should satisfy <see cref="Intersections.Supported{T}"/> to work correctly
+	/// </summary>
 	public Collider Collider { get; init; }
 
+	/// <summary>
+	/// Constructs a new <see cref="IntersectableCollider"/>
+	/// </summary>
+	/// <param name="collider"> Collider to wrap into this object. Checking if it satisfies <see cref="Intersections.Supported{T}"/> is left to the user </param>
+	/// <exception cref="ArgumentNullException"> Thrown if the collider is null </exception>
 	public IntersectableCollider(Collider collider) {
+		ArgumentNullException.ThrowIfNull(collider, nameof(collider));
+
 		Collider = collider;
 	}
 
+	/// <summary>
+	/// World position of the underlying collider
+	/// </summary>
 	public Vector3 WorldPosition {
 		get => Collider.WorldPosition;
 	}
 
+	/// <summary>
+	/// The furthest point on the wrapped collider in the given direction
+	/// </summary>
+	/// <param name="direction"> World space normalized direction </param>
+	/// <returns> World space position of the point on the collider that's the furthest in the given direction </returns>
+	/// <exception cref="NotSupportedException"> Thrown if the wrapped collider doesn't satisfy <see cref="Intersections.Supported{T}"/> </exception>
 	public Vector3 GetFurthestPoint(Vector3 direction) {
-		var temp = Collider.FurthestPoint(direction);
-
-		return temp;
+		return Collider.FurthestPoint(direction);;
 	}
 }
 
-// Cylinder pointing forward (+x)
+/// <summary>
+/// An intersectable cylinder, with it's base at WorldPosition and facing towards <see cref="WorldTransform"/>.Forward
+/// </summary>
 public class IntersectableCylinder : IIntersectable {
+	/// <summary>
+	/// Transform used by this cylinder, affects the position, rotation and scale of the cylinder
+	/// </summary>
 	public Transform WorldTransform { get; init; }
+	/// <summary>
+	/// Radius of the cylinder
+	/// </summary>
 	public float Radius { get; init; }
+	/// <summary>
+	/// Height of the cylinder, stretching towards <see cref="WorldTransform"/>.Forward
+	/// </summary>
 	public float Height { get; init; }
 
-	public DebugOverlaySystem DebugOverlay { get; init; } = null;
-
+	/// <summary>
+	/// Create a cylinder located at the world origin, pointing towards world's positive X
+	/// </summary>
+	/// <param name="radius"> Radius of the cylinder </param>
+	/// <param name="height"> Height of the cylinder </param>
 	public IntersectableCylinder(float radius, float height) {
 		Radius = radius;
 		Height = height;
 		WorldTransform = Transform.Zero;
 	}
 
+	/// <summary>
+	/// Create a cylinder located at the <see cref="WorldTransform"/>.Position, pointing towards <see cref="WorldTransform"/>.Forward
+	/// </summary>
+	/// <param name="radius"> Radius of the cylinder </param>
+	/// <param name="height"> Height of the cylinder </param>
+	/// <param name="worldTransform"> The transform used by this cylinder </param>
 	public IntersectableCylinder(float radius, float height, Transform worldTransform) {
 		Radius = radius;
 		Height = height;
 		WorldTransform = worldTransform;
 	}
 
-	public IntersectableCylinder(float radius, float height, Transform worldTransform, DebugOverlaySystem debugOverlay) {
-		Radius = radius;
-		Height = height;
-		WorldTransform = worldTransform;
-		DebugOverlay = debugOverlay;
+	/// <summary>
+	/// Create a cylinder centered at worldTransform.Position, pointing towards <see cref="WorldTransform"/>.Forward
+	/// </summary>
+	/// <param name="radius"> Radius of the cylinder </param>
+	/// <param name="height"> Height of the cylinder </param>
+	/// <param name="worldTransform"> The transform used by this cylinder </param>
+	public static IntersectableCylinder CenteredAt(float radius, float height, Transform worldTransform) {
+		Transform t = worldTransform.WithPosition(worldTransform.Position + worldTransform.Backward * (height / 2));
+
+		return new IntersectableCylinder(radius, height, t);
 	}
 
+	/// <summary>
+	/// The point at the center of the base of this cylinder
+	/// </summary>
 	public Vector3 WorldPosition {
 		get => WorldTransform.Position;
 	}
 
+	/// <summary>
+	/// Returns the furthest point on this cylinder in the given direction
+	/// </summary>
+	/// <param name="direction"> World space normalized direction vector </param>
+	/// <returns> World space position of the point on this cylinder that's the furthest in the given direction </returns>
 	public Vector3 GetFurthestPoint(Vector3 direction) {
 		var localDirection = WorldTransform.NormalToLocal(direction);
 
@@ -325,7 +443,6 @@ public class IntersectableCylinder : IIntersectable {
 		if (localDirection.WithX(0).LengthSquared <= 0.0001) {
 			if (localDirection.x < 0) {
 				furthestPoint = WorldTransform.Position;
-				
 			}
 			else {
 				furthestPoint = WorldTransform.PointToWorld(Vector3.Forward * Height);
@@ -348,26 +465,12 @@ public class IntersectableCylinder : IIntersectable {
 }
 
 static class Extensions {
-	public static bool IntersectsWith(this Collider self, Collider other) {
-		IIntersectable.IntersectionTimer.Start();
-
-		var result = IIntersectable.Intersection(new IntersectableCollider(self), new IntersectableCollider(other));
-
-		IIntersectable.IntersectionTimer.Stop();
-
-		return result;
-	}
-
-	public static bool IntersectsWith(this Collider self, IIntersectable other) {
-		IIntersectable.IntersectionTimer.Start();
-
-		var result = IIntersectable.Intersection(new IntersectableCollider(self), other);
-
-		IIntersectable.IntersectionTimer.Stop();
-
-		return result;
-	}
-
+	/// <summary>
+	/// The furthest point on the wrapped collider in the given direction
+	/// </summary>
+	/// <param name="self"> The tested collider </param>
+	/// <param name="direction"> World space normalized direction </param>
+	/// <returns> World space position of the point on the collider that's the furthest in the given direction </returns>
 	public static Vector3 FurthestPoint(this BoxCollider self, Vector3 direction) {
 		Vector3 localDir = self.WorldTransform.NormalToLocal(direction);
 
@@ -382,39 +485,104 @@ static class Extensions {
 		return furthestPoint;
 	}
 
+	/// <summary>
+	/// The furthest point on the wrapped collider in the given direction. Not supported, will always throw <see cref="NotSupportedException"/>
+	/// </summary>
+	/// <param name="self"> The tested collider </param>
+	/// <param name="direction"> World space normalized direction </param>
+	/// <returns> World space position of the point on the collider that's the furthest in the given direction </returns>
+	/// <exception cref="NotSupportedException"> Always thrown </exception>
 	public static Vector3 FurthestPoint(this CapsuleCollider self, Vector3 direction) {
 		throw new NotImplementedException("Unsupported type: " + self.GetType().ToString());
 	}
 
+	/// <summary>
+	/// The furthest point on the wrapped collider in the given direction. Not supported, will always throw <see cref="NotSupportedException"/>
+	/// </summary>
+	/// <param name="self"> The tested collider </param>
+	/// <param name="direction"> World space normalized direction </param>
+	/// <returns> World space position of the point on the collider that's the furthest in the given direction </returns>
+	/// <exception cref="NotSupportedException"> Always thrown </exception>
 	public static Vector3 FurthestPoint(this HullCollider self, Vector3 direction) {
 		throw new NotImplementedException("Unsupported type: " + self.GetType().ToString());
 	}
 
+	/// <summary>
+	/// The furthest point on the wrapped collider in the given direction. Not supported, will always throw <see cref="NotSupportedException"/>
+	/// </summary>
+	/// <param name="self"> The tested collider </param>
+	/// <param name="direction"> World space normalized direction </param>
+	/// <returns> World space position of the point on the collider that's the furthest in the given direction </returns>
+	/// <exception cref="NotSupportedException"> Always thrown </exception>
 	public static Vector3 FurthestPoint(this MapCollider self, Vector3 direction) {
 		throw new NotImplementedException("Unsupported type: " + self.GetType().ToString());
 	}
 
+	/// <summary>
+	/// The furthest point on the wrapped collider in the given direction. Not supported, will always throw <see cref="NotSupportedException"/>
+	/// </summary>
+	/// <param name="self"> The tested collider </param>
+	/// <param name="direction"> World space normalized direction </param>
+	/// <returns> World space position of the point on the collider that's the furthest in the given direction </returns>
+	/// <exception cref="NotSupportedException"> Always thrown </exception>
 	public static Vector3 FurthestPoint(this MeshComponent self, Vector3 direction) {
 		throw new NotImplementedException("Unsupported type: " + self.GetType().ToString());
 	}
 
+	/// <summary>
+	/// The furthest point on the wrapped collider in the given direction. Not supported, will always throw <see cref="NotSupportedException"/>
+	/// </summary>
+	/// <param name="self"> The tested collider </param>
+	/// <param name="direction"> World space normalized direction </param>
+	/// <returns> World space position of the point on the collider that's the furthest in the given direction </returns>
+	/// <exception cref="NotSupportedException"> Always thrown </exception>
 	public static Vector3 FurthestPoint(this ModelCollider self, Vector3 direction) {
 		throw new NotImplementedException("Unsupported type: " + self.GetType().ToString());
 	}
 
+	/// <summary>
+	/// The furthest point on the wrapped collider in the given direction. Not supported, will always throw <see cref="NotSupportedException"/>
+	/// </summary>
+	/// <param name="self"> The tested collider </param>
+	/// <param name="direction"> World space normalized direction </param>
+	/// <returns> World space position of the point on the collider that's the furthest in the given direction </returns>
+	/// <exception cref="NotSupportedException"> Always thrown </exception>
 	public static Vector3 FurthestPoint(this PlaneCollider self, Vector3 direction) {
 		throw new NotImplementedException("Unsupported type: " + self.GetType().ToString());
 	}
 
+	/// <summary>
+	/// The furthest point on the wrapped collider in the given direction
+	/// </summary>
+	/// <param name="self"> The tested collider </param>
+	/// <param name="direction"> World space normalized direction </param>
+	/// <returns> World space position of the point on the collider that's the furthest in the given direction </returns>
 	public static Vector3 FurthestPoint(this SphereCollider self, Vector3 direction) {
-		throw new NotImplementedException("Unsupported type: " + self.GetType().ToString());
+		return self.WorldPosition + self.WorldTransform.PointToWorld(self.Center) + direction * self.Radius;
 	}
 
+	/// <summary>
+	/// The furthest point on the wrapped collider in the given direction. Not supported, will always throw <see cref="NotSupportedException"/>
+	/// </summary>
+	/// <param name="self"> The tested collider </param>
+	/// <param name="direction"> World space normalized direction </param>
+	/// <returns> World space position of the point on the collider that's the furthest in the given direction </returns>
+	/// <exception cref="NotSupportedException"> Always thrown </exception>
 	public static Vector3 FurthestPoint(this Terrain self, Vector3 direction) {
 		throw new NotImplementedException("Unsupported type: " + self.GetType().ToString());
 	}
 
+	/// <summary>
+	/// The furthest point on the wrapped collider in the given direction
+	/// </summary>
+	/// <param name="self"> The tested collider </param>
+	/// <param name="direction"> World space normalized direction </param>
+	/// <returns> World space position of the point on the collider that's the furthest in the given direction </returns>
+	/// <exception cref="NotSupportedException"> Thrown if <c> self </c> collider doesn't satisfy <see cref="Intersections.Supported{T}"/> </exception>
 	public static Vector3 FurthestPoint(this Collider self, Vector3 direction) {
+		if (self is IIntersectable) {
+			return (self as IIntersectable).GetFurthestPoint(direction);
+		}
 		switch (self) {
 			case BoxCollider box:
 				return box.FurthestPoint(direction);

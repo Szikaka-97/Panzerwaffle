@@ -18,6 +18,7 @@ namespace Panzerwaffle.TankControl {
 		private List<SuspensionArm> suspensionArms = new List<SuspensionArm>();
 		private TrackController leftTrack;
 		private TrackController rightTrack;
+		private Collider[] selfColliders;
 
 		private float Width => Vector3.DistanceBetween(localWheelbaseCenterLeft.Position, localWheelbaseCenterRight.Position);
 
@@ -45,31 +46,49 @@ namespace Panzerwaffle.TankControl {
 		}
 
 		[Property(Title = "Road Wheels")]
-		public List<GameObject> WheelsObjects {get; private set;} = new List<GameObject>();
+		public List<GameObject> WheelsObjects { get; private set; } = new List<GameObject>();
 		[Property]
-		public float WheelDiameter {get; private set;} = 0;
+		public float WheelDiameter { get; private set; } = 0;
 		[Property]
-		public List<GameObject> Sprockets {get; private set;} = null;
+		public List<GameObject> Sprockets { get; private set; } = null;
 		[Property]
-		public float SprocketDiameter {get; private set;} = 0;
+		public float SprocketDiameter { get; private set; } = 0;
 		[Property]
-		public List<GameObject> IdlerWheels {get; private set;} = null;
+		public List<GameObject> IdlerWheels { get; private set; } = null;
 		[Property]
-		public float IdlerDiameter {get; private set;} = 0;
+		public float IdlerDiameter { get; private set; } = 0;
 		[Property(Title = "Suspension Arms")]
-		public List<GameObject> SuspensionArmObjects {get; private set;} = new List<GameObject>();
+		public List<GameObject> SuspensionArmObjects { get; private set; } = new List<GameObject>();
 		[Property]
-		public float TrackWidth {get; private set;} = 0;
+		public float TrackWidth { get; private set; } = 0;
 		[Property]
-		public float TrackThickness {get; private set;} = 0;
+		public float TrackThickness { get; private set; } = 0;
 		[Property]
-		public PowerPack Engine {get; private set;} = null;
+		public PowerPack Engine { get; private set; } = null;
+		[Property]
+		public float Mass { get; private set; } = 70000;
+		[Property]
+		public float TensionBarStiffness { get; private set; } = 1;
+		[Property, Range(0, 90)]
+		public float TensionBarIdleAngle { get; private set; } = 30;
 
 		[Property, Group("Debug")]
 		private bool visualizeWheels;
 		[Property, Group("Debug")]
 		private bool visualizeSuspensionBounds;
 
+		private Vector3 TorsionBarForce(SuspensionArm arm) {
+			float g = Scene.PhysicsWorld.Gravity.Length;
+
+			float force = (arm.Rotation - TensionBarIdleAngle) * TensionBarStiffness;
+
+			if (arm.Rotation >= 89.99) {
+				force = Math.Max(force, Mass * g / this.suspensionArms.Count());
+			}
+
+			return -Scene.PhysicsWorld.Gravity.Normal * force;
+		}
+		
 		private void RecalculateWheelPositions() {
 			this.wheels.Clear();
 
@@ -112,7 +131,7 @@ namespace Panzerwaffle.TankControl {
 			this.suspensionArms.Clear();
 
 			foreach (var armObject in this.SuspensionArmObjects) {
-				var attachedWheel = this.wheels.FirstOrDefault( wheel => wheel.wheelObject.Parent == armObject );
+				var attachedWheel = this.wheels.FirstOrDefault(wheel => wheel.wheelObject.Parent == armObject);
 
 				if (attachedWheel == null) {
 					Log.Error(String.Format("Suspension arm object {} has no wheels attached!", armObject));
@@ -121,6 +140,13 @@ namespace Panzerwaffle.TankControl {
 				}
 
 				this.suspensionArms.Add(new SuspensionArm(armObject, attachedWheel));
+				Collider wheelCollider = attachedWheel.wheelObject.GetComponent<Collider>();
+
+				if (wheelCollider == null) {
+					SphereCollider colSphere = attachedWheel.wheelObject.AddComponent<SphereCollider>();
+					colSphere.Radius = attachedWheel.Radius;
+					colSphere.Center = -attachedWheel.Axis * TrackWidth / 2;
+				}
 			}
 
 			// Bones [0] and [1] are the rearmost ones, [^1] and [^2] are the forward most ones
@@ -167,26 +193,34 @@ namespace Panzerwaffle.TankControl {
 				});
 
 				foreach (Collider collider in closeColliders) {
-					if (collider.IntersectsWith(wheelCylinder)) {
+					if (Intersections.Test(collider, wheelCylinder)) {
 						return true;
-					};
+					}
 				}
 
 				return false;
 			}
+
+			return;
 
 			var traceBox = BBox.FromPositionAndSize(
 				Vector3.Zero,
 				this.GetComponent<ModelRenderer>().Bounds.Size.WithZ(0)
 			);
 
-			var blockers = Scene.Trace.Box(
+			var trace = Scene.Trace.Box(
 				traceBox, WorldPosition + Vector3.Up * 20, WorldPosition + Vector3.Down * 20
 			).Rotated(
 				Rotation.Identity
-			).RunAll();
+			);
 
-			const int PRECISION = 3;
+			foreach (var collider in this.selfColliders) {
+				trace = trace.IgnoreGameObjectHierarchy(collider.GameObject);
+			}
+
+			var blockers = trace.RunAll();
+
+			const int PRECISION = 5;
 
 			Parallel.ForEach(this.suspensionArms, arm => {
 				List<Collider> closeColliders = new List<Collider>(blockers.Count());
@@ -205,7 +239,7 @@ namespace Panzerwaffle.TankControl {
 				}
 
 				if (!TestCollision(arm, closeColliders)) {
-					arm.Rotation = MathX.Approach(arm.Rotation, 0, TorsionBarReturnSpeed * 90 * Time.Delta);
+					arm.Rotation = MathX.Approach(arm.Rotation, TensionBarIdleAngle, TorsionBarReturnSpeed * 90 * Time.Delta);
 
 					return;
 				}
@@ -234,6 +268,10 @@ namespace Panzerwaffle.TankControl {
 
 				arm.Rotation = low_angle;
 			});
+
+			// foreach (var arm in this.suspensionArms) {
+			// 	arm.wheel.wheelObject.GetComponent<Collider>().Enabled = arm.Rotation > 89.9f;
+			// }
 		}
 
 		// A lot worse than the previous one, but a lot faster
@@ -467,9 +505,10 @@ namespace Panzerwaffle.TankControl {
 			renderList.Reset();
 
 			var leftWheels = this.wheels.Where( wheel => Vector3.Dot(wheel.Axis, this.WorldTransform.Right) > 0 );
-			var rightWheels = this.wheels.Where( wheel => Vector3.Dot(wheel.Axis, this.WorldTransform.Right) > 0 );
+			var rightWheels = this.wheels.Where( wheel => Vector3.Dot(wheel.Axis, this.WorldTransform.Right) < 0 );
 
 			Mesh left = UpdateTrackSingle(leftWheels);
+			Mesh right = UpdateTrackSingle(rightWheels);
 
 			Transform modelTransform = new Transform
 			{
@@ -478,9 +517,8 @@ namespace Panzerwaffle.TankControl {
 				Scale = Vector3.One
 			};
 
-			// var attrs = new RenderAttributes();
-
 			renderList.DrawModel(Model.Builder.AddMesh(left).Create(), modelTransform);
+			renderList.DrawModel(Model.Builder.AddMesh(right).Create(), modelTransform);
 		}
 
 		// DEBUG
@@ -491,9 +529,13 @@ namespace Panzerwaffle.TankControl {
 
 			InitSuspension();
 
+			this.selfColliders = this.GetComponentsInChildren<Collider>().ToArray();
+
 			renderList = new CommandList("Track Render Commands");
 
 			Scene.GetComponentInChildren<CameraComponent>().AddCommandList(renderList, Stage.AfterOpaque);
+
+			GetComponent<Rigidbody>(true).MassOverride = Mass;
 		}
 
 		protected override void OnUpdate() {
@@ -506,18 +548,24 @@ namespace Panzerwaffle.TankControl {
 
 			WorldPosition = currentPos - WheelPivot;
 			WorldRotation = Rotation.LookAt(currentForward, WorldTransform.Up);
+		}
 
+		protected override void OnFixedUpdate() {
 			Stopwatch susWatch = Stopwatch.StartNew();
 
 			UpdateSuspension();
 
 			DebugOverlay.ScreenText(Vector2.Left * 10 + Vector2.Up * 30, "Total: " + susWatch.Elapsed.TotalMilliseconds, flags: TextFlag.Left);
-			// DebugOverlay.ScreenText(Vector2.Left * 10 + Vector2.Up * 50, "Inter: " + IIntersectable.IntersectionTimer.Elapsed.TotalMilliseconds, flags: TextFlag.Left);
-			// DebugOverlay.ScreenText(Vector2.Left * 10 + Vector2.Up * 70, "Ratio: " + IIntersectable.IntersectionTimer.Elapsed.TotalMilliseconds / susWatch.Elapsed.TotalMilliseconds, flags: TextFlag.Left);
 
-			IIntersectable.IntersectionTimer.Reset();
-			
-			// UpdateTrack();
+			Vector3 force = 0;
+
+			foreach (var arm in this.suspensionArms) {
+				force += TorsionBarForce(arm);
+			}
+
+			// Log.Info(force.z.ToString() + " <>" + (Mass * Scene.PhysicsWorld.Gravity).z.ToString() + " = " + (Mass * Scene.PhysicsWorld.Gravity + force).z.ToString());
+			GetComponent<Rigidbody>().ClearForces();
+			GetComponent<Rigidbody>().ApplyForce(Mass * Scene.PhysicsWorld.Gravity + force);
 		}
 
 		protected override void DrawGizmos() {

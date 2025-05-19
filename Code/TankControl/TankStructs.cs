@@ -35,10 +35,13 @@ namespace Panzerwaffle.TankControl {
 
 		public float Rotation {
 			get => (this.armBone.LocalRotation * baseRotation).Angle();
-			set => this.armBone.LocalRotation = baseRotation * global::Rotation.FromYaw(value * Vector3.Dot(wheel.Axis, baseRotation.Forward));
+			set {
+				this.armBone.LocalRotation = baseRotation * global::Rotation.FromYaw(value * this.side);
+			}
 		}
 
 		private Rotation baseRotation;
+		private float side;
 
 		public float armLength {
 			get => armBone.Children[0].LocalPosition.Length;
@@ -48,6 +51,17 @@ namespace Panzerwaffle.TankControl {
 			this.armBone = armBone;
 			this.baseRotation = armBone.LocalRotation;
 			this.wheel = attachedWheel;
+
+			var controller = armBone.GetComponentInParent<TankController>().WorldTransform;
+
+			this.side = Vector3.Dot(controller.Right, controller.Position - this.armBone.WorldPosition);
+
+			if (side > 0) {
+				side = 1;
+			}
+			else {
+				side = -1;
+			}
 		}
 	}
 }
