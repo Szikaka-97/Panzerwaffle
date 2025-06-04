@@ -34,14 +34,15 @@ namespace Panzerwaffle.TankControl {
 		}
 
 		public float Rotation {
-			get => (this.armBone.LocalRotation * baseRotation).Angle();
+			get => _rotation;
 			set {
-				this.armBone.LocalRotation = baseRotation * global::Rotation.FromYaw(value * this.side);
+				this.armBone.LocalRotation = baseRotation * global::Rotation.FromYaw((_rotation = value) * this.side);
 			}
 		}
 
 		private Rotation baseRotation;
 		private float side;
+		private float _rotation;
 
 		public float armLength {
 			get => armBone.Children[0].LocalPosition.Length;
