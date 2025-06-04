@@ -19,6 +19,7 @@
         {
           "__type": "Sandbox.SceneInformation",
           "__guid": "43d3d093-49fb-453d-8c0b-57881448f1bd",
+          "__enabled": true,
           "Author": null,
           "Changes": "",
           "Description": "",
@@ -54,6 +55,7 @@
         {
           "__type": "Sandbox.DirectionalLight",
           "__guid": "d3659344-a90d-48fa-927a-095f70fe041f",
+          "__enabled": true,
           "FogMode": "Enabled",
           "FogStrength": 1,
           "LightColor": "0.94419,0.97767,1,1",
@@ -87,6 +89,7 @@
         {
           "__type": "Sandbox.SkyBox2D",
           "__guid": "de79e9e0-5c37-4c54-ac67-bfcdb1d5483b",
+          "__enabled": true,
           "OnComponentDestroy": null,
           "OnComponentDisabled": null,
           "OnComponentEnabled": null,
@@ -100,6 +103,7 @@
         {
           "__type": "Sandbox.EnvmapProbe",
           "__guid": "f3e304db-baab-4c1a-a4ec-8442585c2d62",
+          "__enabled": true,
           "Bounds": {
             "Mins": "-51200,-51200,-512",
             "Maxs": "51200,51200,512"
@@ -145,6 +149,7 @@
         {
           "__type": "Sandbox.CameraComponent",
           "__guid": "cf3cbf96-22b6-4be4-a5d0-672a96c17f9f",
+          "__enabled": true,
           "BackgroundColor": "0.33333,0.46275,0.52157,1",
           "ClearFlags": "All",
           "FieldOfView": 60,
@@ -169,6 +174,7 @@
         {
           "__type": "Sandbox.Bloom",
           "__guid": "d73ef723-c888-41d4-802e-f797c79318be",
+          "__enabled": true,
           "__version": 1,
           "Gamma": 2.2,
           "Mode": "Additive",
@@ -185,6 +191,7 @@
         {
           "__type": "Sandbox.Tonemapping",
           "__guid": "9d76f362-7227-40eb-a189-69353c780c46",
+          "__enabled": true,
           "__version": 3,
           "AutoExposureEnabled": true,
           "ExposureCompensation": 0,
@@ -203,6 +210,7 @@
         {
           "__type": "Sandbox.Sharpen",
           "__guid": "0bffee5e-19f2-41c4-88f9-faefbcce6bf4",
+          "__enabled": true,
           "OnComponentDestroy": null,
           "OnComponentDisabled": null,
           "OnComponentEnabled": null,
@@ -214,6 +222,7 @@
         {
           "__type": "Sandbox.ColorAdjustments",
           "__guid": "d2a063e8-e0a3-4047-ae85-701e1a221ade",
+          "__enabled": true,
           "Brightness": 1.1,
           "Contrast": 1.01,
           "HueRotate": 0,
@@ -233,7 +242,7 @@
       "__version": 1,
       "Flags": 0,
       "Name": "ltj_glazior",
-      "Position": "-74.69426,0,14.74512",
+      "Position": "-74.69426,0,-3.959416",
       "Rotation": "0,0,0,1",
       "Scale": "1,1,1",
       "Tags": "",
@@ -246,6 +255,7 @@
         {
           "__type": "Sandbox.SkinnedModelRenderer",
           "__guid": "77ba064e-c8b1-417e-ba11-e3bafe228dc3",
+          "__enabled": true,
           "AnimationGraph": null,
           "BodyGroups": 18446744073709551615,
           "BoneMergeTarget": null,
@@ -287,6 +297,7 @@
         {
           "__type": "Panzerwaffle.TankControl.TankController",
           "__guid": "b5c52fd0-74a1-4c2f-aa4e-bb5f62302d14",
+          "__enabled": true,
           "Engine": {
             "_type": "component",
             "component_id": "e29e426e-1ed3-4c8a-a46b-533d06e3ce6b",
@@ -449,6 +460,7 @@
         {
           "__type": "Panzerwaffle.TankControl.PowerPack",
           "__guid": "e29e426e-1ed3-4c8a-a46b-533d06e3ce6b",
+          "__enabled": true,
           "gears": [
             {},
             {}
@@ -465,6 +477,7 @@
         {
           "__type": "Panzerwaffle.TankControl.TankDriverStation",
           "__guid": "dccbcf72-aad0-42f1-93d1-447d35a0d68a",
+          "__enabled": true,
           "OnComponentDestroy": null,
           "OnComponentDisabled": null,
           "OnComponentEnabled": null,
@@ -477,54 +490,6 @@
             "go": "791f36e8-9d4c-4bf5-9fc6-a3febf90fc6e",
             "component_type": "TankController"
           }
-        },
-        {
-          "__type": "Sandbox.Rigidbody",
-          "__guid": "ca71e8b6-9ceb-4b08-8faf-59a2dab6ee54",
-          "AngularDamping": 0,
-          "Gravity": false,
-          "LinearDamping": 0,
-          "Locking": {
-            "X": false,
-            "Y": false,
-            "Z": false,
-            "Pitch": false,
-            "Yaw": false,
-            "Roll": false
-          },
-          "MassCenterOverride": "0,0,0",
-          "MassOverride": 0,
-          "MotionEnabled": true,
-          "OnComponentDestroy": null,
-          "OnComponentDisabled": null,
-          "OnComponentEnabled": null,
-          "OnComponentFixedUpdate": null,
-          "OnComponentStart": null,
-          "OnComponentUpdate": null,
-          "OverrideMassCenter": false,
-          "RigidbodyFlags": 0,
-          "StartAsleep": false
-        },
-        {
-          "__type": "Sandbox.BoxCollider",
-          "__guid": "e70b801f-68dd-4be2-8d31-cf337ad72c5a",
-          "Center": "0,0,39.50001",
-          "Friction": null,
-          "IsTrigger": false,
-          "OnComponentDestroy": null,
-          "OnComponentDisabled": null,
-          "OnComponentEnabled": null,
-          "OnComponentFixedUpdate": null,
-          "OnComponentStart": null,
-          "OnComponentUpdate": null,
-          "OnObjectTriggerEnter": null,
-          "OnObjectTriggerExit": null,
-          "OnTriggerEnter": null,
-          "OnTriggerExit": null,
-          "Scale": "295.3979,90.59994,39.19992",
-          "Static": false,
-          "Surface": null,
-          "SurfaceVelocity": "0,0,0"
         }
       ],
       "Children": [
@@ -546,6 +511,7 @@
             {
               "__type": "Sandbox.SkinnedModelRenderer",
               "__guid": "2601e9a6-06ba-48c5-8678-5d72afffc241",
+              "__enabled": true,
               "AnimationGraph": null,
               "BodyGroups": 18446744073709551615,
               "BoneMergeTarget": {
@@ -611,7 +577,7 @@
             {
               "__guid": "8647cf47-fec3-4fb9-b670-62ac1865391a",
               "__version": 1,
-              "Flags": 4,
+              "Flags": 1028,
               "Name": "Turret",
               "Position": "0.000000000001818989,61.41717,0.00002701078",
               "Rotation": "0,0,0,1",
@@ -627,10 +593,10 @@
                 {
                   "__guid": "446c1fc9-ade2-4594-9a9b-e163de950095",
                   "__version": 1,
-                  "Flags": 4,
+                  "Flags": 1028,
                   "Name": "Gun",
-                  "Position": "-54.17229,11.81101,-0.00001106583",
-                  "Rotation": "-0.4999996,0.4999999,0.5000001,0.5000003",
+                  "Position": "-39.36997,11.41732,-0.000001923069",
+                  "Rotation": "-0.4963469,0.5000057,0.4999679,0.5036529",
                   "Scale": "1,1,1",
                   "Tags": "",
                   "Enabled": true,
@@ -645,7 +611,7 @@
                       "__version": 1,
                       "Flags": 4,
                       "Name": "Gun_end",
-                      "Position": "-0.00000871162,39.37001,-0.00001525879",
+                      "Position": "-0.00002872944,39.37001,-0.0001831055",
                       "Rotation": "0,0,0,1",
                       "Scale": "1,1,1",
                       "Tags": "",
@@ -679,9 +645,10 @@
                 {
                   "__type": "Panzerwaffle.TankControl.TrackController",
                   "__guid": "c9aded61-b9a6-405e-ac6b-e10a050f8651",
+                  "__enabled": true,
                   "bounds": {
-                    "Mins": "-1.269121,45.27557,-12.59832",
-                    "Maxs": "28.65188,68.89757,17.32268"
+                    "Mins": "-1.269121,45.27557,-16.55773",
+                    "Maxs": "28.65188,68.89757,13.36327"
                   },
                   "OnComponentDestroy": null,
                   "OnComponentDisabled": null,
@@ -700,8 +667,8 @@
                       "Axis": "0.0000006076467,-0.9999998,-0.0000007586437",
                       "Rotation": "-0.4999997,-0.4999999,0.4999993,0.5000011",
                       "Radius": 12.598425,
-                      "WorldPosition": "-202.6467,45.27547,46.2412",
-                      "CenterPosition": "-202.6467,57.08646,46.24121"
+                      "WorldPosition": "-202.6467,45.27547,27.53666",
+                      "CenterPosition": "-202.6467,57.08646,27.53667"
                     },
                     {
                       "wheelObject": {
@@ -713,8 +680,8 @@
                       "Axis": "0.0000002622684,-0.9999996,-0.0000002384185",
                       "Rotation": "-0.0000004439449,0.7071069,-0.7071066,0.0000004439448",
                       "Radius": 13.7795,
-                      "WorldPosition": "-186.9326,45.27553,17.10746",
-                      "CenterPosition": "-186.9326,57.08652,17.10746"
+                      "WorldPosition": "-186.9326,45.27553,-1.597078",
+                      "CenterPosition": "-186.9326,57.08652,-1.597075"
                     },
                     {
                       "wheelObject": {
@@ -726,8 +693,8 @@
                       "Axis": "0.0000002622684,-0.9999996,-0.0000002384185",
                       "Rotation": "-0.0000004439449,0.7071069,-0.7071066,0.0000004439448",
                       "Radius": 13.7795,
-                      "WorldPosition": "-154.6154,45.27553,17.10743",
-                      "CenterPosition": "-154.6154,57.08652,17.10744"
+                      "WorldPosition": "-154.6154,45.27553,-1.597101",
+                      "CenterPosition": "-154.6154,57.08652,-1.597098"
                     },
                     {
                       "wheelObject": {
@@ -739,8 +706,8 @@
                       "Axis": "0.0000002622684,-0.9999996,-0.0000002384185",
                       "Rotation": "-0.0000004439449,0.7071069,-0.7071066,0.0000004439448",
                       "Radius": 13.7795,
-                      "WorldPosition": "-121.1509,45.27552,17.10739",
-                      "CenterPosition": "-121.1509,57.08652,17.1074"
+                      "WorldPosition": "-121.1509,45.27552,-1.597139",
+                      "CenterPosition": "-121.1509,57.08652,-1.597136"
                     },
                     {
                       "wheelObject": {
@@ -752,8 +719,8 @@
                       "Axis": "0.0000002622684,-0.9999996,-0.0000002384185",
                       "Rotation": "-0.0000004439449,0.7071069,-0.7071066,0.0000004439448",
                       "Radius": 13.7795,
-                      "WorldPosition": "-85.71788,45.27554,17.10737",
-                      "CenterPosition": "-85.71788,57.08654,17.10737"
+                      "WorldPosition": "-85.71788,45.27554,-1.597164",
+                      "CenterPosition": "-85.71788,57.08654,-1.597161"
                     },
                     {
                       "wheelObject": {
@@ -765,8 +732,8 @@
                       "Axis": "0.0000002622691,-0.9999995,-0.0000002384185",
                       "Rotation": "0.000000527404,-0.7071065,0.7071069,-0.0000003604858",
                       "Radius": 13.7795,
-                      "WorldPosition": "-50.28488,45.27554,17.10735",
-                      "CenterPosition": "-50.28488,57.08654,17.10736"
+                      "WorldPosition": "-50.28488,45.27554,-1.597183",
+                      "CenterPosition": "-50.28488,57.08654,-1.59718"
                     },
                     {
                       "wheelObject": {
@@ -778,8 +745,8 @@
                       "Axis": "0.0000002622693,-0.9999998,-0.0000007152556",
                       "Rotation": "0.0000003604858,-0.7071064,0.7071071,-0.0000005274039",
                       "Radius": 13.7795,
-                      "WorldPosition": "-16.82039,45.27555,17.10733",
-                      "CenterPosition": "-16.8204,57.08655,17.10733"
+                      "WorldPosition": "-16.82039,45.27555,-1.597206",
+                      "CenterPosition": "-16.8204,57.08655,-1.597198"
                     },
                     {
                       "wheelObject": {
@@ -791,8 +758,8 @@
                       "Axis": "0.0000009448218,-0.9999998,-0.0000005057623",
                       "Rotation": "-0.4999995,-0.5,0.4999997,0.5000009",
                       "Radius": 10.6495,
-                      "WorldPosition": "59.16367,45.27554,46.24104",
-                      "CenterPosition": "59.16366,57.08654,46.24104"
+                      "WorldPosition": "59.16367,45.27554,27.5365",
+                      "CenterPosition": "59.16366,57.08654,27.53651"
                     },
                     {
                       "wheelObject": {
@@ -804,8 +771,8 @@
                       "Axis": "-0.00000001583892,-0.9999998,-0.0000003576278",
                       "Rotation": "-0.0000004439449,0.7071069,-0.7071066,0.0000004439448",
                       "Radius": 13.7795,
-                      "WorldPosition": "13.69138,45.27557,17.1073",
-                      "CenterPosition": "13.69138,57.08657,17.1073"
+                      "WorldPosition": "13.69138,45.27557,-1.597239",
+                      "CenterPosition": "13.69138,57.08657,-1.597234"
                     }
                   ],
                   "tank": {
@@ -1385,9 +1352,10 @@
                 {
                   "__type": "Panzerwaffle.TankControl.TrackController",
                   "__guid": "36da90d2-de40-4037-9814-cf12e638ab13",
+                  "__enabled": true,
                   "bounds": {
-                    "Mins": "1.880443,-68.89749,-12.59831",
-                    "Maxs": "31.80144,-45.27549,17.32269"
+                    "Mins": "1.880443,-68.89749,-16.55773",
+                    "Maxs": "31.80144,-45.27549,13.36327"
                   },
                   "OnComponentDestroy": null,
                   "OnComponentDisabled": null,
@@ -1406,8 +1374,8 @@
                       "Axis": "-0.0000002622684,1,-0.00000005960464",
                       "Rotation": "-0.7071064,0.000000199496,0.0000001994961,0.7071072",
                       "Radius": 12.598425,
-                      "WorldPosition": "-202.6466,-45.27557,46.24112",
-                      "CenterPosition": "-202.6466,-57.08657,46.24112"
+                      "WorldPosition": "-202.6466,-45.27557,27.53658",
+                      "CenterPosition": "-202.6466,-57.08657,27.53658"
                     },
                     {
                       "wheelObject": {
@@ -1419,8 +1387,8 @@
                       "Axis": "-0.0000002622686,0.9999998,0.0000002384188",
                       "Rotation": "-0.0000001376788,-0.7071065,0.7071069,0.00000007586153",
                       "Radius": 13.7795,
-                      "WorldPosition": "-183.7829,-45.27554,17.10733",
-                      "CenterPosition": "-183.7829,-57.08654,17.10732"
+                      "WorldPosition": "-183.7829,-45.27554,-1.59721",
+                      "CenterPosition": "-183.7829,-57.08654,-1.597213"
                     },
                     {
                       "wheelObject": {
@@ -1432,8 +1400,8 @@
                       "Axis": "-0.0000003282021,0.9999998,0.0000002384189",
                       "Rotation": "-0.000000244449,-0.7071065,0.7071069,-0.00000003090852",
                       "Radius": 13.7795,
-                      "WorldPosition": "-151.4657,-45.27554,17.10732",
-                      "CenterPosition": "-151.4657,-57.08654,17.10732"
+                      "WorldPosition": "-151.4657,-45.27554,-1.597212",
+                      "CenterPosition": "-151.4657,-57.08654,-1.597215"
                     },
                     {
                       "wheelObject": {
@@ -1445,8 +1413,8 @@
                       "Axis": "-0.0000002622686,0.9999998,0.0000002384188",
                       "Rotation": "-0.0000001376788,-0.7071065,0.7071069,0.00000007586153",
                       "Radius": 13.7795,
-                      "WorldPosition": "-118.0012,-45.27552,17.10732",
-                      "CenterPosition": "-118.0012,-57.08652,17.10731"
+                      "WorldPosition": "-118.0012,-45.27552,-1.597219",
+                      "CenterPosition": "-118.0012,-57.08652,-1.597222"
                     },
                     {
                       "wheelObject": {
@@ -1458,8 +1426,8 @@
                       "Axis": "-0.0000002622686,0.9999998,0.0000002384188",
                       "Rotation": "-0.0000001376788,-0.7071065,0.7071069,0.00000007586153",
                       "Radius": 13.7795,
-                      "WorldPosition": "-82.56825,-45.2755,17.10732",
-                      "CenterPosition": "-82.56825,-57.0865,17.10732"
+                      "WorldPosition": "-82.56825,-45.2755,-1.597214",
+                      "CenterPosition": "-82.56825,-57.0865,-1.597217"
                     },
                     {
                       "wheelObject": {
@@ -1471,8 +1439,8 @@
                       "Axis": "-0.0000002622681,0.9999998,0.0000002384184",
                       "Rotation": "0.0000004547658,-0.7071065,0.7071069,-0.0000004331241",
                       "Radius": 13.7795,
-                      "WorldPosition": "-47.13526,-45.2755,17.10732",
-                      "CenterPosition": "-47.13525,-57.0865,17.10732"
+                      "WorldPosition": "-47.13526,-45.2755,-1.597218",
+                      "CenterPosition": "-47.13525,-57.0865,-1.59722"
                     },
                     {
                       "wheelObject": {
@@ -1484,8 +1452,8 @@
                       "Axis": "-0.0000003282021,0.9999998,0.0000002384189",
                       "Rotation": "-0.000000244449,-0.7071065,0.7071069,-0.00000003090852",
                       "Radius": 13.7795,
-                      "WorldPosition": "-13.67081,-45.27549,17.10733",
-                      "CenterPosition": "-13.67081,-57.08649,17.10733"
+                      "WorldPosition": "-13.67081,-45.27549,-1.597202",
+                      "CenterPosition": "-13.67081,-57.08649,-1.597205"
                     },
                     {
                       "wheelObject": {
@@ -1497,8 +1465,8 @@
                       "Axis": "-0.0000002622686,0.9999998,0.0000002384188",
                       "Rotation": "-0.0000001376788,-0.7071065,0.7071069,0.00000007586153",
                       "Radius": 13.7795,
-                      "WorldPosition": "16.84094,-45.2755,17.10731",
-                      "CenterPosition": "16.84094,-57.08649,17.10731"
+                      "WorldPosition": "16.84094,-45.2755,-1.597225",
+                      "CenterPosition": "16.84094,-57.08649,-1.597228"
                     },
                     {
                       "wheelObject": {
@@ -1510,8 +1478,8 @@
                       "Axis": "-0.0000002622684,1,-0.00000005960464",
                       "Rotation": "-0.7071064,0.000000199496,0.0000001994961,0.7071072",
                       "Radius": 10.6495,
-                      "WorldPosition": "59.16366,-45.27549,46.24108",
-                      "CenterPosition": "59.16366,-57.08649,46.24108"
+                      "WorldPosition": "59.16366,-45.27549,27.53655",
+                      "CenterPosition": "59.16366,-57.08649,27.53655"
                     }
                   ],
                   "tank": {
@@ -2128,6 +2096,7 @@
             {
               "__type": "Sandbox.SkinnedModelRenderer",
               "__guid": "7ec29a31-5ebc-4685-800e-76bdf42dfa40",
+              "__enabled": true,
               "AnimationGraph": "animgraphs/kerfus.vanmgrph",
               "BodyGroups": 18446744073709551615,
               "BoneMergeTarget": null,
@@ -2173,6 +2142,7 @@
             {
               "__type": "Panzerwaffle.Kerfus",
               "__guid": "37b3988a-9bc4-48ed-b358-dc703dfed294",
+              "__enabled": true,
               "currentLookAt": "0,0,0",
               "downLookRange": 35,
               "horizontalLookRange": 60,
@@ -3001,6 +2971,7 @@
                     {
                       "__type": "Sandbox.CameraComponent",
                       "__guid": "7706c682-1473-4677-a24a-7d9f68d98dd8",
+                      "__enabled": true,
                       "BackgroundColor": "0.33333,0.46275,0.52157,1",
                       "ClearFlags": "All",
                       "FieldOfView": 60,
@@ -3084,6 +3055,7 @@
             {
               "__type": "Sandbox.ModelRenderer",
               "__guid": "0b6a18bf-fdb8-4661-970e-ef635bfa9baa",
+              "__enabled": true,
               "BodyGroups": 18446744073709551615,
               "CreateAttachments": false,
               "MaterialGroup": null,
@@ -3107,6 +3079,7 @@
             {
               "__type": "Sandbox.BoxCollider",
               "__guid": "0715cb55-1733-4f5e-8560-c288b8695631",
+              "__enabled": true,
               "Center": "0,0,-5",
               "Friction": null,
               "IsTrigger": false,
@@ -3135,11 +3108,11 @@
       "__version": 1,
       "Flags": 0,
       "Name": "Cube",
-      "Position": "-18.74595,-175.8604,-19.69468",
+      "Position": "30.35314,44.1341,-44.63223",
       "Rotation": "0,0,0,1",
       "Scale": "1,1,1",
       "Tags": "",
-      "Enabled": false,
+      "Enabled": true,
       "NetworkMode": 2,
       "NetworkInterpolation": true,
       "NetworkOrphaned": 0,
@@ -3148,6 +3121,7 @@
         {
           "__type": "Sandbox.ModelRenderer",
           "__guid": "af1ca95b-7ea4-4157-bebc-d5285e749dd0",
+          "__enabled": true,
           "BodyGroups": 18446744073709551615,
           "CreateAttachments": false,
           "MaterialGroup": null,
@@ -3171,6 +3145,7 @@
         {
           "__type": "Sandbox.BoxCollider",
           "__guid": "7016abd2-ecb0-4cc3-8f97-831cd665101b",
+          "__enabled": true,
           "Center": "0,0,0",
           "Friction": null,
           "IsTrigger": false,

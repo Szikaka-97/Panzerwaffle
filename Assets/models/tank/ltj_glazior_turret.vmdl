@@ -29,6 +29,11 @@
 								"Gun_Barrel",
 								"Turret_Roof",
 								"Turret",
+								"Cannon",
+								"Shell",
+								"Shell_001",
+								"Shell_002",
+								"Shell_007",
 							]
 						}
 					},
