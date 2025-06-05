@@ -577,7 +577,6 @@ namespace Panzerwaffle.TankControl {
 			if (Math.Abs(forwardBackTwist) > 10000) {
 				this.WorldRotation *= Rotation.FromPitch(-Time.Delta * (forwardBackTwist / 10000000));
 			}
-
 		}
 
 		protected override void OnFixedUpdate() {
