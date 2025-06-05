@@ -22,7 +22,7 @@
 					}
 					m_sNote = ""
 					m_tagSpans = [  ]
-					m_sequenceName = "driver_anim"
+					m_sequenceName = "gunner_anim"
 					m_playbackSpeed = 1.0
 					m_bLoop = true
 				}
