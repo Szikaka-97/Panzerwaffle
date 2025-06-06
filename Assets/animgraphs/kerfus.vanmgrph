@@ -64,7 +64,7 @@
 				{
 					_class = "CLookAtAnimNode"
 					m_sName = "Unnamed"
-					m_vecPosition = [ -528.0, 64.0 ]
+					m_vecPosition = [ -512.0, 0.0 ]
 					m_nNodeID = 
 					{
 						m_id = 1266338051
@@ -92,7 +92,7 @@
 					}
 					m_lookatChainName = "LookAt"
 					m_attachmentName = "Eyes"
-					m_flYawLimit = 60.0
+					m_flYawLimit = 180.0
 					m_flPitchLimit = 60.0
 					m_bResetBase = true
 					m_bLockWhenWaning = true

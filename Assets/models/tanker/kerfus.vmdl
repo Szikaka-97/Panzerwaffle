@@ -245,6 +245,57 @@
 				]
 				default_root_bone_name = ""
 			},
+			{
+				_class = "IKData"
+				children = 
+				[
+					{
+						_class = "IKChain"
+						name = "Right_Hand"
+						children = 
+						[
+							{
+								_class = "IKChainJoint"
+								name = "ArmUpper_R"
+								children = 
+								[
+									{
+										_class = "IKChainJoint"
+										name = "ArmLower_R"
+										children = 
+										[
+											{
+												_class = "IKChainJoint"
+												name = "Hand_R"
+												bone = "Hand_R"
+											},
+										]
+										bone = "ArmLower_R"
+									},
+								]
+								bone = "ArmUpper_R"
+							},
+						]
+						m_bDoBonesOrientAlongPositiveX = true
+						"m_DefaultSolverSettings.m_nNumIterations" = 6
+						"m_DefaultSolverSettings.m_SolverType " = "IKSOLVER_TwoBone"
+						"m_DefaultTargetSettings.m_Bone" = 
+						{
+							m_Name = "Hand_R"
+						}
+						"m_DefaultTargetSettings.m_TargetSource" = "Bone"
+						"m_Data.m_DefaultTargetSettings.m_AnimgraphParameterNamePosition" = 
+						{
+							m_id = 4294967295
+						}
+						"m_Data.m_EndEffectorFixedOffsetAttachment" = 
+						{
+							m_Name = ""
+						}
+						"m_Data.m_bParentJointRequiresAlignment" = true
+					},
+				]
+			},
 		]
 		model_archetype = ""
 		primary_associated_entity = ""
