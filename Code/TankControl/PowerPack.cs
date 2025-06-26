@@ -34,7 +34,7 @@ namespace Panzerwaffle.TankControl {
 		public float Throttle {
 			get => this.throttle;
 			set {
-				this.throttle = Math.Clamp(value, 0, 1);
+				this.throttle = Math.Clamp(value, -1, 1);
 			}
 		}
 

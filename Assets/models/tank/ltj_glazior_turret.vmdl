@@ -36,6 +36,37 @@
 								"Shell_007",
 								"Gunner_Controls",
 								"Breech_Block",
+								"Shell_Rack_1",
+								"Shell_Rack_10",
+								"Shell_Rack_11",
+								"Shell_Rack_12",
+								"Shell_Rack_13",
+								"Shell_Rack_14",
+								"Shell_Rack_15",
+								"Shell_Rack_16",
+								"Shell_Rack_17",
+								"Shell_Rack_18",
+								"Shell_Rack_19",
+								"Shell_Rack_2",
+								"Shell_Rack_20",
+								"Shell_Rack_21",
+								"Shell_Rack_22",
+								"Shell_Rack_23",
+								"Shell_Rack_24",
+								"Shell_Rack_25",
+								"Shell_Rack_26",
+								"Shell_Rack_27",
+								"Shell_Rack_28",
+								"Shell_Rack_29",
+								"Shell_Rack_3",
+								"Shell_Rack_30",
+								"Shell_Rack_4",
+								"Shell_Rack_5",
+								"Shell_Rack_6",
+								"Shell_Rack_7",
+								"Shell_Rack_8",
+								"Shell_Rack_9",
+								"Gunner_Controls_001",
 							]
 						}
 					},
@@ -62,11 +93,59 @@
 				[
 					{
 						_class = "DefaultMaterialGroup"
-						remaps = [  ]
-						use_global_default = true
+						remaps = 
+						[
+							{
+								from = "barrel interior.vmat"
+								to = "materials/tank/tank barrel interior.vmat"
+							},
+							{
+								from = "gunner screen material.vmat"
+								to = "materials/tank/tank gunner screen material.vmat"
+							},
+							{
+								from = "heat shell.vmat"
+								to = "materials/tank/tank heat shell material.vmat"
+							},
+							{
+								from = "shell casing.vmat"
+								to = "materials/tank/tank shell casing material.vmat"
+							},
+							{
+								from = "tank interior material.vmat"
+								to = "materials/tank/tank interior material.vmat"
+							},
+							{
+								from = "tank paint.vmat"
+								to = "materials/tank/tank paint.vmat"
+							},
+							{
+								from = "gunner screen border material.vmat"
+								to = "materials/tank/tank gunner screen border material.vmat"
+							},
+							{
+								from = "gunner screen overlay material.vmat"
+								to = "materials/tank/tank gunner screen overlay.vmat"
+							},
+						]
+						use_global_default = false
 						global_default_material = "materials/default.vmat"
 					},
 				]
+			},
+			{
+				_class = "BoneMarkupList"
+				children = 
+				[
+					{
+						_class = "BoneMarkup"
+						target_bone = "Gun"
+						ignore_Translation = false
+						ignore_rotation = false
+						do_not_discard = false
+					},
+				]
+				bone_cull_type = "Aggressive"
 			},
 		]
 		model_archetype = ""

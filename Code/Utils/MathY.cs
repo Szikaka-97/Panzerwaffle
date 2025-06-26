@@ -38,4 +38,12 @@ namespace MathY {
 			};
 		}
 	}
+
+	static class MathY {
+		public static Vector3 MoveTowards(Vector3 a, Vector3 b, float maxDelta) {
+			Vector3 diff = (b - a).Normal;
+
+			return a + diff * Math.Min(maxDelta, a.Distance(b));
+		}
+	}
 }

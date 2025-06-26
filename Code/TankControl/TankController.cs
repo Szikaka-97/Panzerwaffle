@@ -83,7 +83,7 @@ namespace Panzerwaffle.TankControl {
 			float force = (arm.Rotation - TensionBarIdleAngle) * TensionBarStiffness;
 
 			if (arm.Rotation >= 89.99) {
-				force = Math.Max(force, Mass * g / this.suspensionArms.Count());
+				force *= 2;
 			}
 
 			return force;
@@ -140,13 +140,13 @@ namespace Panzerwaffle.TankControl {
 				}
 
 				this.suspensionArms.Add(new SuspensionArm(armObject, attachedWheel));
-				Collider wheelCollider = attachedWheel.wheelObject.GetComponent<Collider>();
+				// Collider wheelCollider = attachedWheel.wheelObject.GetComponent<Collider>();
 
-				if (wheelCollider == null) {
-					SphereCollider colSphere = attachedWheel.wheelObject.AddComponent<SphereCollider>();
-					colSphere.Radius = attachedWheel.Radius;
-					colSphere.Center = -attachedWheel.Axis * TrackWidth / 2;
-				}
+				// if (wheelCollider == null) {
+				// 	SphereCollider colSphere = attachedWheel.wheelObject.AddComponent<SphereCollider>();
+				// 	colSphere.Radius = attachedWheel.Radius;
+				// 	colSphere.Center = -attachedWheel.Axis * TrackWidth / 2;
+				// }
 			}
 
 			// Bones [0] and [1] are the rearmost ones, [^1] and [^2] are the forward most ones
@@ -155,6 +155,17 @@ namespace Panzerwaffle.TankControl {
 
 		private void CalculateMovement(ref Vector3 position, ref Vector3 forward, out float movementLeft, out float movementRight) {
 			float v = this.Engine.GetOutputSpeed() * this.SprocketDiameter * Time.Delta;
+
+			Vector3 rearWheelsCenter = (this.suspensionArms[0].wheel.CenterPosition + this.suspensionArms[1].wheel.CenterPosition) / 2;
+			Vector3 wheelsForward = Vector3.Zero;
+
+			for (int i = 0; i < this.suspensionArms.Count; i += 2) {
+				wheelsForward += (this.suspensionArms[1].wheel.CenterPosition + this.suspensionArms[2].wheel.CenterPosition) - rearWheelsCenter;
+			}
+
+			// Log.Info(wheelsForward);
+
+			wheelsForward = wheelsForward.Normal;
 
 			movementLeft = v * (1 - this.brakeForceLeft);
 			Vector3 leftTrackPosition = position + this.WorldTransform.Left * (this.Width / 2) + this.WorldTransform.Forward * movementLeft;
@@ -171,7 +182,7 @@ namespace Panzerwaffle.TankControl {
 				forward = forward.RotateAround(Vector3.Zero, Rotation.FromAxis(this.WorldTransform.Up, MathX.RadianToDegree((float) -angle)));
 			}
 			else {
-				position += this.WorldTransform.Forward * movementLeft;
+				position -= wheelsForward * movementLeft;
 			}
 		}
 
@@ -212,6 +223,7 @@ namespace Panzerwaffle.TankControl {
 				Rotation.Identity
 			);
 
+			trace = trace.IgnoreGameObjectHierarchy(this.GameObject);
 			foreach (var collider in this.selfColliders) {
 				trace = trace.IgnoreGameObjectHierarchy(collider.GameObject);
 			}
@@ -546,40 +558,37 @@ namespace Panzerwaffle.TankControl {
 
 			WorldPosition = currentPos - WheelPivot;
 			WorldRotation = Rotation.LookAt(currentForward, WorldTransform.Up);
-
-			Stopwatch susWatch = Stopwatch.StartNew();
-
-			UpdateSuspension();
-
-			DebugOverlay.ScreenText(Vector2.Left * 10 + Vector2.Up * 30, "Total: " + susWatch.Elapsed.TotalMilliseconds, flags: TextFlag.Left);
-
-			float force = 0;
-			float rollTwist = 0;
-			float forwardBackTwist = 0;
-
-			foreach (SuspensionArm arm in this.suspensionArms) {
-				force += TorsionBarForce(arm);
-				rollTwist += TorsionBarForce(arm) * Vector3.Dot(arm.armBone.WorldPosition - this.WorldPosition, this.WorldTransform.Right);
-				forwardBackTwist += TorsionBarForce(arm) * Vector3.Dot(arm.wheel.WorldPosition - this.WorldPosition, this.WorldTransform.Forward);
-			}
-			forwardBackTwist -= 23_000_000; // Bias
-
-			DebugOverlay.ScreenText(Vector2.Left * 10 + Vector2.Up * 60, "Force:  " + force, flags: TextFlag.Left);
-			DebugOverlay.ScreenText(Vector2.Left * 10 + Vector2.Up * 80, "RL Twist: " + rollTwist, flags: TextFlag.Left);
-			DebugOverlay.ScreenText(Vector2.Left * 10 + Vector2.Up * 100, "FB Twist: " + forwardBackTwist, flags: TextFlag.Left);
-
-			if (Math.Abs(rollTwist) > 1000) {
-				this.WorldRotation *= Rotation.FromRoll(-Time.Delta * (rollTwist / 1000000));
-			}
-			if (Math.Abs(force - 3_500_000) > 1000) {
-				this.WorldPosition += this.WorldTransform.Up * (Time.Delta * ((force - 3_500_000) / 100000));
-			}
-			if (Math.Abs(forwardBackTwist) > 10000) {
-				this.WorldRotation *= Rotation.FromPitch(-Time.Delta * (forwardBackTwist / 10000000));
-			}
 		}
 
 		protected override void OnFixedUpdate() {
+			// Errors out now, for some reason
+			
+			// Stopwatch susWatch = Stopwatch.StartNew();
+
+			// UpdateSuspension();
+
+			// DebugOverlay.ScreenText(Vector2.Left * 10 + Vector2.Up * 30, "Total: " + susWatch.Elapsed.TotalMilliseconds, flags: TextFlag.Left);
+			// float force = 0;
+			// float rollTwist = 0;
+			// float forwardBackTwist = 0;
+
+			// foreach (SuspensionArm arm in this.suspensionArms) {
+			// 	force += TorsionBarForce(arm) * Vector3.Dot(this.WorldTransform.Up, Vector3.Up);
+
+			// 	GetComponent<Rigidbody>(true).ApplyForceAt(arm.armBone.WorldPosition, TorsionBarForce(arm) * Vector3.Up);
+
+			// 	rollTwist += TorsionBarForce(arm) * (Vector3.Dot(arm.armBone.WorldPosition - this.WorldPosition, this.WorldTransform.Right) / GetComponent<ModelRenderer>().LocalBounds.Extents.y);
+			// 	forwardBackTwist += TorsionBarForce(arm) * (Vector3.Dot(arm.wheel.WorldPosition - this.WorldPosition, this.WorldTransform.Forward) / GetComponent<ModelRenderer>().LocalBounds.Extents.x);
+			// }
+
+			// force = force.Approach(0, 1);
+			// rollTwist = rollTwist.Approach(0, 1);
+			// forwardBackTwist = forwardBackTwist.Approach(0, 1);
+
+			// DebugOverlay.ScreenText(Vector2.Left * 10 + Vector2.Up * 60, "Force:  " + force, flags: TextFlag.Left);
+			// Log.Info(force);
+			// DebugOverlay.ScreenText(Vector2.Left * 10 + Vector2.Up * 80, "RL Twist: " + rollTwist, flags: TextFlag.Left);
+			// DebugOverlay.ScreenText(Vector2.Left * 10 + Vector2.Up * 100, "FB Twist: " + forwardBackTwist, flags: TextFlag.Left);
 		}
 
 		protected override void DrawGizmos() {

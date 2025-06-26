@@ -72,7 +72,7 @@ csharp_indent_labels = no_change
 csharp_indent_switch_labels = true
 
 # Space preferences
-#	SCREW THIS SHIT
+csharp_space_* = unset
 
 # Wrapping preferences
 csharp_preserve_single_line_blocks = true

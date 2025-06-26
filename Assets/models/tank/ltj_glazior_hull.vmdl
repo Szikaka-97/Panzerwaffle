@@ -11,8 +11,26 @@
 				[
 					{
 						_class = "DefaultMaterialGroup"
-						remaps = [  ]
-						use_global_default = true
+						remaps = 
+						[
+							{
+								from = "heat shell.vmat"
+								to = "materials/tank/tank heat shell material.vmat"
+							},
+							{
+								from = "shell casing.vmat"
+								to = "materials/tank/tank shell casing material.vmat"
+							},
+							{
+								from = "tank interior material.vmat"
+								to = "materials/tank/tank interior material.vmat"
+							},
+							{
+								from = "tank paint.vmat"
+								to = "materials/tank/tank paint.vmat"
+							},
+						]
+						use_global_default = false
 						global_default_material = "materials/default.vmat"
 					},
 				]
@@ -81,6 +99,7 @@
 								"Shell_004",
 								"Shell_005",
 								"Shell_006",
+								"Engine_Cover",
 							]
 						}
 					},

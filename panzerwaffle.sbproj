@@ -9,7 +9,7 @@
   "PackageReferences": [],
   "EditorReferences": null,
   "Mounts": null,
-  "IsStandaloneOnly": false,
+  "IsStandaloneOnly": true,
   "Metadata": {
     "MaxPlayers": 64,
     "MinPlayers": 1,
@@ -23,6 +23,7 @@
     "PerMapRanking": false,
     "LeaderboardType": "None",
     "CsProjName": "",
-    "StartupScene": "scenes/minimal.scene"
+    "StartupScene": "scenes/minimal.scene",
+    "LaunchMode": "Normal"
   }
 }
